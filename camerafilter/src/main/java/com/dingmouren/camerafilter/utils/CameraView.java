@@ -40,7 +40,7 @@ import android.view.Display;
 import android.view.WindowManager;
 
 
-import com.dingmouren.camerafilter.Renderer_11;
+import com.dingmouren.camerafilter.CameraRenderer;
 import com.dingmouren.camerafilter.filter.FilterBase;
 
 import java.io.File;
@@ -52,34 +52,28 @@ import java.net.URL;
 import java.util.List;
 
 /**
- * The main accessor for GPUImage functionality. This class helps to do common
+ * The main accessor for CameraView functionality. This class helps to do common
  * tasks through a simple interface.
  */
-public class GPUImage {
+public class CameraView {
     private final Context mContext;
-    private final Renderer_11 mRenderer;
+    private final CameraRenderer mRenderer;
     private GLSurfaceView mGlSurfaceView;
     private FilterBase mFilter;
     private Bitmap mCurrentBitmap;
     private ScaleType mScaleType = ScaleType.CENTER_CROP;
 
-    /**
-     * Instantiates a new GPUImage object.
-     *
-     * @param context the context
-     */
-    public GPUImage(final Context context) {
+    public CameraView(final Context context) {
         if (!supportsOpenGLES2(context)) {
             throw new IllegalStateException("OpenGL ES 2.0 is not supported on this phone.");
         }
 
         mContext = context;
         mFilter = new FilterBase();
-        mRenderer = new Renderer_11(mFilter);
+        mRenderer = new CameraRenderer(mFilter);
     }
 
     /**
-     * Checks if OpenGL ES 2.0 is supported on the current device.
      * 检查当前设备是否支持OpenGL ES 2.0。
      * @param context the context
      * @return true, if successful
@@ -109,7 +103,7 @@ public class GPUImage {
 
     /**
      * Sets the background color
-     * 设置清屏颜色
+     * 设置清屏颜色,应该放在渲染器中
      * @param red red color value
      * @param green green color value
      * @param blue red color value
@@ -128,17 +122,9 @@ public class GPUImage {
         }
     }
 
-    /**
-     * Sets the up camera to be connected to GPUImage to get a filtered preview.
-     * 设置要连接到GPUImage的摄像头以获得过滤预览。
-     * @param camera the camera
-     */
-    public void setUpCamera(final Camera camera) {
-        setUpCamera(camera, 0, false, false);
-    }
 
     /**
-     * Sets the up camera to be connected to GPUImage to get a filtered preview.
+     * Sets the up camera to be connected to CameraView to get a filtered preview.
      * 设置要连接到GPUImage的摄像头以获得过滤预览。
      * @param camera the camera
      * @param degrees 通过旋转图像的度数
@@ -149,7 +135,7 @@ public class GPUImage {
             final boolean flipVertical) {
         mGlSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) { // 大于level 10
-            setUpCameraGingerbread(camera);
+            setUpSurfaceTexture(camera);
         } else { // 小于level 10
             camera.setPreviewCallback(mRenderer);
             camera.startPreview();
@@ -169,14 +155,16 @@ public class GPUImage {
         mRenderer.setRotationCamera(rotation, flipHorizontal, flipVertical);
     }
 
+    /**
+     * 设置相机预览的surfacetexture
+     * @param camera
+     */
     @TargetApi(11)
-    private void setUpCameraGingerbread(final Camera camera) {
+    private void setUpSurfaceTexture(final Camera camera) {
         mRenderer.setUpSurfaceTexture(camera);
     }
 
     /**
-     * Sets the filter which should be applied to the image which was (or will
-     * be) set by setImage(...).
      * 设置滤镜
      * @param filter the new filter
      */
@@ -198,7 +186,7 @@ public class GPUImage {
     }
 
     /**
-     * This sets the scale type of GPUImage. This has to be run before setting the image.
+     * This sets the scale type of CameraView. This has to be run before setting the image.
      * If image is set and scale type changed, image needs to be reset.
      * 这将设置GPUImage的缩放类型。, 必须在设置图像之前运行。 , *如果设置了图像并更改了比例类型，则需要重置图像
      * @param scaleType The new ScaleType
@@ -257,6 +245,11 @@ public class GPUImage {
         new LoadImageFileTask(this, file).execute();
     }
 
+    /**
+     * 获取uri的路径
+     * @param uri
+     * @return
+     */
     private String getPath(final Uri uri) {
         String[] projection = {
                 MediaStore.Images.Media.DATA,
@@ -274,7 +267,7 @@ public class GPUImage {
 
     /**
      * Gets the current displayed image with applied filter as a Bitmap.
-     * 获取当前显示的图像，将应用的滤镜作为位图
+     *  给当前位图添加滤镜
      * @return the current image with filter applied
      */
     public Bitmap getBitmapWithFilterApplied() {
@@ -283,7 +276,7 @@ public class GPUImage {
 
     /**
      * Gets the given bitmap with current filter applied as a Bitmap.
-     * 获取给定位图，将当前过滤器应用为位图
+     * 给bitamp添加滤镜
      * @param bitmap the bitmap on which the current filter should be applied
      * @return the bitmap with filter applied
      */
@@ -310,14 +303,14 @@ public class GPUImage {
             }
         }
 
-        Renderer_11 renderer = new Renderer_11(mFilter);
+        CameraRenderer renderer = new CameraRenderer(mFilter);
         renderer.setRotation(Rotation.NORMAL,
                 mRenderer.isFlippedHorizontally(), mRenderer.isFlippedVertically());
         renderer.setScaleType(mScaleType);
         PixelBuffer buffer = new PixelBuffer(bitmap.getWidth(), bitmap.getHeight());
         buffer.setRenderer(renderer);
         renderer.setImageBitmap(bitmap, false);
-        Bitmap result = buffer.getBitmap();
+        Bitmap resultBitmap = buffer.getBitmap();
         mFilter.destroy();
         renderer.deleteImage();
         buffer.destroy();
@@ -328,7 +321,7 @@ public class GPUImage {
         }
         requestRender();
 
-        return result;
+        return resultBitmap;
     }
 
     /**
@@ -337,7 +330,7 @@ public class GPUImage {
      * Whenever a new Bitmap is ready, the listener will be called with the
      * bitmap. The order of the calls to the listener will be the same as the
      * filter order.
-     *
+     * 获取图像上多个滤镜的图像
      * @param bitmap the bitmap on which the filters will be applied
      * @param filters the filters which will be applied on the bitmap
      * @param listener the listener on which the results will be notified
@@ -347,7 +340,7 @@ public class GPUImage {
         if (filters.isEmpty()) {
             return;
         }
-        Renderer_11 renderer = new Renderer_11(filters.get(0));
+        CameraRenderer renderer = new CameraRenderer(filters.get(0));
         renderer.setImageBitmap(bitmap, false);
         PixelBuffer buffer = new PixelBuffer(bitmap.getWidth(), bitmap.getHeight());
         buffer.setRenderer(renderer);
@@ -402,6 +395,7 @@ public class GPUImage {
 
     /**
      * Runs the given Runnable on the OpenGL thread.
+     * 在OpenGL线程上运行给定的Runnable
      *
      * @param runnable The runnable to be run on the OpenGL thread.
      */
@@ -409,6 +403,11 @@ public class GPUImage {
         mRenderer.runOnDrawEnd(runnable);
     }
 
+
+    /**
+     * 获取输出的宽度
+     * @return
+     */
     private int getOutputWidth() {
         if (mRenderer != null && mRenderer.getFrameWidth() != 0) {
             return mRenderer.getFrameWidth();
@@ -422,6 +421,10 @@ public class GPUImage {
         }
     }
 
+    /**
+     * 获取输出的高度
+     * @return
+     */
     private int getOutputHeight() {
         if (mRenderer != null && mRenderer.getFrameHeight() != 0) {
             return mRenderer.getFrameHeight();
@@ -435,6 +438,9 @@ public class GPUImage {
         }
     }
 
+    /**
+     * 保存图片的异步任务
+     */
     @Deprecated
     private class SaveTask extends AsyncTask<Void, Void, Void> {
 
@@ -461,17 +467,12 @@ public class GPUImage {
         }
 
         private void saveImage(final String folderName, final String fileName, final Bitmap image) {
-            File path = Environment
-                    .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
             File file = new File(path, folderName + "/" + fileName);
             try {
                 file.getParentFile().mkdirs();
                 image.compress(CompressFormat.JPEG, 80, new FileOutputStream(file));
-                MediaScannerConnection.scanFile(mContext,
-                        new String[] {
-                            file.toString()
-                        }, null,
-                        new MediaScannerConnection.OnScanCompletedListener() {
+                MediaScannerConnection.scanFile(mContext, new String[] {file.toString()}, null, new MediaScannerConnection.OnScanCompletedListener() {
                             @Override
                             public void onScanCompleted(final String path, final Uri uri) {
                                 if (mListener != null) {
@@ -479,7 +480,7 @@ public class GPUImage {
 
                                         @Override
                                         public void run() {
-                                            mListener.onPictureSaved(uri);
+                                            mListener.onPictureSaved(uri,image);
                                         }
                                     });
                                 }
@@ -491,16 +492,23 @@ public class GPUImage {
         }
     }
 
+    /**
+     * 图片保存结束后的监听
+     */
     public interface OnPictureSavedListener {
-        void onPictureSaved(Uri uri);
+        void onPictureSaved(Uri uri,final Bitmap image);
     }
 
+
+    /**
+     * Uri文件
+     */
     private class LoadImageUriTask extends LoadImageTask {
 
         private final Uri mUri;
 
-        public LoadImageUriTask(GPUImage gpuImage, Uri uri) {
-            super(gpuImage);
+        public LoadImageUriTask(CameraView cameraView, Uri uri) {
+            super(cameraView);
             mUri = uri;
         }
 
@@ -536,12 +544,15 @@ public class GPUImage {
         }
     }
 
+    /**
+     * File文件
+     */
     private class LoadImageFileTask extends LoadImageTask {
 
         private final File mImageFile;
 
-        public LoadImageFileTask(GPUImage gpuImage, File file) {
-            super(gpuImage);
+        public LoadImageFileTask(CameraView cameraView, File file) {
+            super(cameraView);
             mImageFile = file;
         }
 
@@ -569,15 +580,18 @@ public class GPUImage {
         }
     }
 
+    /**
+     * 抽象类
+     */
     private abstract class LoadImageTask extends AsyncTask<Void, Void, Bitmap> {
 
-        private final GPUImage mGPUImage;
+        private final CameraView mCameraView;
         private int mOutputWidth;
         private int mOutputHeight;
 
         @SuppressWarnings("deprecation")
-        public LoadImageTask(final GPUImage gpuImage) {
-            mGPUImage = gpuImage;
+        public LoadImageTask(final CameraView cameraView) {
+            mCameraView = cameraView;
         }
 
         @Override
@@ -599,8 +613,8 @@ public class GPUImage {
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             super.onPostExecute(bitmap);
-            mGPUImage.deleteImage();
-            mGPUImage.setImage(bitmap);
+            mCameraView.deleteImage();
+            mCameraView.setImage(bitmap);
         }
 
         protected abstract Bitmap decode(BitmapFactory.Options options);
@@ -661,6 +675,7 @@ public class GPUImage {
 
         /**
          * Retrieve the scaling size for the image dependent on the ScaleType.<br>
+         *     根据ScaleType检索图像的缩放大小
          * <br>
          * If CROP: sides are same size or bigger than output's sides<br>
          * Else   : sides are same size or smaller than output's sides
@@ -672,8 +687,7 @@ public class GPUImage {
             float withRatio = (float) width / mOutputWidth;
             float heightRatio = (float) height / mOutputHeight;
 
-            boolean adjustWidth = mScaleType == ScaleType.CENTER_CROP
-                    ? withRatio > heightRatio : withRatio < heightRatio;
+            boolean adjustWidth = mScaleType == ScaleType.CENTER_CROP ? withRatio > heightRatio : withRatio < heightRatio;
 
             if (adjustWidth) {
                 newHeight = mOutputHeight;
@@ -685,6 +699,7 @@ public class GPUImage {
             return new int[]{Math.round(newWidth), Math.round(newHeight)};
         }
 
+        /**/
         private boolean checkSize(boolean widthBigger, boolean heightBigger) {
             if (mScaleType == ScaleType.CENTER_CROP) {
                 return widthBigger && heightBigger;
@@ -693,6 +708,7 @@ public class GPUImage {
             }
         }
 
+        /**/
         private Bitmap rotateImage(final Bitmap bitmap) {
             if (bitmap == null) {
                 return null;
@@ -720,5 +736,7 @@ public class GPUImage {
         void response(T item);
     }
 
-    public enum ScaleType { CENTER_INSIDE, CENTER_CROP }
+    public enum ScaleType {
+        CENTER_INSIDE, CENTER_CROP
+    }
 }

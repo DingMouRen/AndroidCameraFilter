@@ -28,7 +28,7 @@ import android.opengl.GLSurfaceView.Renderer;
 
 
 import com.dingmouren.camerafilter.filter.FilterBase;
-import com.dingmouren.camerafilter.utils.GPUImage;
+import com.dingmouren.camerafilter.utils.CameraView;
 import com.dingmouren.camerafilter.utils.OpenGlUtils;
 import com.dingmouren.camerafilter.utils.Rotation;
 import com.dingmouren.camerafilter.utils.TextureRotationUtil;
@@ -49,7 +49,7 @@ import static com.dingmouren.camerafilter.utils.TextureRotationUtil.TEXTURE_NO_R
 
 
 @TargetApi(11)
-public class Renderer_11 implements Renderer, PreviewCallback {
+public class CameraRenderer implements Renderer, PreviewCallback {
     public static final int NO_IMAGE = -1;
     static final float CUBE[] = {
             -1.0f, -1.0f,
@@ -79,13 +79,13 @@ public class Renderer_11 implements Renderer, PreviewCallback {
     private Rotation mRotation;
     private boolean mFlipHorizontal;
     private boolean mFlipVertical;
-    private GPUImage.ScaleType mScaleType = GPUImage.ScaleType.CENTER_CROP;
+    private CameraView.ScaleType mScaleType = CameraView.ScaleType.CENTER_CROP;
 
     private float mBackgroundRed = 0;
     private float mBackgroundGreen = 0;
     private float mBackgroundBlue = 0;
 
-    public Renderer_11(final FilterBase filter) {
+    public CameraRenderer(final FilterBase filter) {
         mFilter = filter;
         mRunOnDraw = new LinkedList<Runnable>();
         mRunOnDrawEnd = new LinkedList<Runnable>();
@@ -187,7 +187,7 @@ public class Renderer_11 implements Renderer, PreviewCallback {
                 mSurfaceTexture = new SurfaceTexture(textures[0]);
                 try {
                     camera.setPreviewTexture(mSurfaceTexture);
-                    camera.setPreviewCallback(Renderer_11.this);
+                    camera.setPreviewCallback(CameraRenderer.this);
                     camera.startPreview();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -263,7 +263,7 @@ public class Renderer_11 implements Renderer, PreviewCallback {
         });
     }
 
-    public void setScaleType(GPUImage.ScaleType scaleType) {
+    public void setScaleType(CameraView.ScaleType scaleType) {
         mScaleType = scaleType;
     }
 
@@ -294,7 +294,7 @@ public class Renderer_11 implements Renderer, PreviewCallback {
 
         float[] cube = CUBE;
         float[] textureCords = TextureRotationUtil.getRotation(mRotation, mFlipHorizontal, mFlipVertical);
-        if (mScaleType == GPUImage.ScaleType.CENTER_CROP) {
+        if (mScaleType == CameraView.ScaleType.CENTER_CROP) {
             float distHorizontal = (1 - 1 / ratioWidth) / 2;
             float distVertical = (1 - 1 / ratioHeight) / 2;
             textureCords = new float[]{

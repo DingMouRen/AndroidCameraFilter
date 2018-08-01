@@ -36,7 +36,7 @@ import android.widget.ProgressBar;
 
 
 import com.dingmouren.camerafilter.filter.FilterBase;
-import com.dingmouren.camerafilter.utils.GPUImage;
+import com.dingmouren.camerafilter.utils.CameraView;
 import com.dingmouren.camerafilter.utils.Rotation;
 
 import java.io.File;
@@ -45,20 +45,20 @@ import java.io.FileOutputStream;
 import java.nio.IntBuffer;
 import java.util.concurrent.Semaphore;
 
-public class GPUImageView extends FrameLayout {
+public class GLImageView extends FrameLayout {
 
     private GLSurfaceView mGLSurfaceView;
-    private GPUImage mGPUImage;
+    private CameraView mCameraView;
     private FilterBase mFilter;
     public Size mForceSize = null;
     private float mRatio = 0.0f;
 
-    public GPUImageView(Context context) {
+    public GLImageView(Context context) {
         super(context);
         init(context, null);
     }
 
-    public GPUImageView(Context context, AttributeSet attrs) {
+    public GLImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs);
     }
@@ -66,8 +66,8 @@ public class GPUImageView extends FrameLayout {
     private void init(Context context, AttributeSet attrs) {
         mGLSurfaceView = new GPUImageGLSurfaceView(context, attrs);
         addView(mGLSurfaceView);
-        mGPUImage = new GPUImage(getContext());
-        mGPUImage.setGLSurfaceView(mGLSurfaceView);
+        mCameraView = new CameraView(getContext());
+        mCameraView.setGLSurfaceView(mGLSurfaceView);
     }
 
     @Override
@@ -95,12 +95,12 @@ public class GPUImageView extends FrameLayout {
     }
 
     /**
-     * Retrieve the GPUImage instance used by this view.
+     * Retrieve the CameraView instance used by this view.
      *
-     * @return used GPUImage instance
+     * @return used CameraView instance
      */
-    public GPUImage getGPUImage() {
-        return mGPUImage;
+    public CameraView getGPUImage() {
+        return mCameraView;
     }
 
     /**
@@ -111,23 +111,23 @@ public class GPUImageView extends FrameLayout {
      * @param blue red color value
      */
     public void setBackgroundColor(float red, float green, float blue) {
-        mGPUImage.setBackgroundColor(red, green, blue);
+        mCameraView.setBackgroundColor(red, green, blue);
     }
 
-    // TODO Should be an xml attribute. But then GPUImage can not be distributed as .jar anymore.
+    // TODO Should be an xml attribute. But then CameraView can not be distributed as .jar anymore.
     public void setRatio(float ratio) {
         mRatio = ratio;
         mGLSurfaceView.requestLayout();
-        mGPUImage.deleteImage();
+        mCameraView.deleteImage();
     }
 
     /**
-     * Set the scale type of GPUImage.
+     * Set the scale type of CameraView.
      *
      * @param scaleType the new ScaleType
      */
-    public void setScaleType(GPUImage.ScaleType scaleType) {
-        mGPUImage.setScaleType(scaleType);
+    public void setScaleType(CameraView.ScaleType scaleType) {
+        mCameraView.setScaleType(scaleType);
     }
 
     /**
@@ -136,7 +136,7 @@ public class GPUImageView extends FrameLayout {
      * @param rotation new rotation
      */
     public void setRotation(Rotation rotation) {
-        mGPUImage.setRotation(rotation);
+        mCameraView.setRotation(rotation);
         requestRender();
     }
 
@@ -147,7 +147,7 @@ public class GPUImageView extends FrameLayout {
      */
     public void setFilter(FilterBase filter) {
         mFilter = filter;
-        mGPUImage.setFilter(filter);
+        mCameraView.setFilter(filter);
         requestRender();
     }
 
@@ -166,7 +166,7 @@ public class GPUImageView extends FrameLayout {
      * @param bitmap the new image
      */
     public void setImage(final Bitmap bitmap) {
-        mGPUImage.setImage(bitmap);
+        mCameraView.setImage(bitmap);
     }
 
     /**
@@ -175,7 +175,7 @@ public class GPUImageView extends FrameLayout {
      * @param uri the uri of the new image
      */
     public void setImage(final Uri uri) {
-        mGPUImage.setImage(uri);
+        mCameraView.setImage(uri);
     }
 
     /**
@@ -184,7 +184,7 @@ public class GPUImageView extends FrameLayout {
      * @param file the file of the new image
      */
     public void setImage(final File file) {
-        mGPUImage.setImage(file);
+        mCameraView.setImage(file);
     }
 
     public void requestRender() {
@@ -268,7 +268,7 @@ public class GPUImageView extends FrameLayout {
         waiter.acquire();
 
         // Run one render pass
-        mGPUImage.runOnGLThread(new Runnable() {
+        mCameraView.runOnGLThread(new Runnable() {
             @Override
             public void run() {
                 waiter.release();
@@ -312,7 +312,7 @@ public class GPUImageView extends FrameLayout {
 
         // Take picture on OpenGL thread
         final int[] pixelMirroredArray = new int[width * height];
-        mGPUImage.runOnGLThread(new Runnable() {
+        mCameraView.runOnGLThread(new Runnable() {
             @Override
             public void run() {
                 final IntBuffer pixelBuffer = IntBuffer.allocate(width * height);

@@ -3,7 +3,7 @@ package com.dingmouren.camerafilter.camera;
 import android.app.Activity;
 import android.hardware.Camera;
 
-import com.dingmouren.camerafilter.utils.GPUImage;
+import com.dingmouren.camerafilter.utils.CameraView;
 
 /**
  * Created by 钉某人
@@ -11,17 +11,17 @@ import com.dingmouren.camerafilter.utils.GPUImage;
  * email: naildingmouren@gmail.com
  */
 
-public class CameraLoader {
+public class CameraV1 {
     private int mCurrentCameraId = 0;
-    private Camera mCameraInstance;
+    public Camera mCamera;
     private Activity mActivity;
     private CameraHelper mCameraHelper;
-    private GPUImage mGPUImage;
+    private CameraView mCameraView;
 
-    public CameraLoader(Activity mActivity, CameraHelper mCameraHelper, GPUImage mGPUImage) {
+    public CameraV1(Activity mActivity, CameraHelper mCameraHelper, CameraView mCameraView) {
         this.mActivity = mActivity;
         this.mCameraHelper = mCameraHelper;
-        this.mGPUImage = mGPUImage;
+        this.mCameraView = mCameraView;
     }
 
     public void onResume() {
@@ -39,20 +39,20 @@ public class CameraLoader {
     }
 
     private void setUpCamera(final int id) {
-        mCameraInstance = getCameraInstance(id);
-        Camera.Parameters parameters = mCameraInstance.getParameters();
+        mCamera = getCameraInstance(id);
+        Camera.Parameters parameters = mCamera.getParameters();
         // TODO adjust by getting supportedPreviewSizes and then choosing
         // the best one for screen size (best fill screen)
         if (parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         }
-        mCameraInstance.setParameters(parameters);
+        mCamera.setParameters(parameters);
 
         int orientation = mCameraHelper.getCameraDisplayOrientation(mActivity, mCurrentCameraId);
         CameraHelper.CameraInfo2 cameraInfo = new CameraHelper.CameraInfo2();
         mCameraHelper.getCameraInfo(mCurrentCameraId, cameraInfo);
         boolean flipHorizontal = (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT);
-        mGPUImage.setUpCamera(mCameraInstance, orientation, flipHorizontal, false);
+        mCameraView.setUpCamera(mCamera, orientation, flipHorizontal, false);
     }
 
     /**
@@ -69,8 +69,8 @@ public class CameraLoader {
     }
 
     private void releaseCamera() {
-        mCameraInstance.setPreviewCallback(null);
-        mCameraInstance.release();
-        mCameraInstance = null;
+        mCamera.setPreviewCallback(null);
+        mCamera.release();
+        mCamera = null;
     }
 }

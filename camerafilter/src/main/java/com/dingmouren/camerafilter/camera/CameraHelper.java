@@ -23,43 +23,44 @@ import android.hardware.Camera.CameraInfo;
 import android.view.Surface;
 
 public class CameraHelper {
-    private final CameraHelperGB mImpl;
 
     public CameraHelper(final Context context) {
-            mImpl = new CameraHelperGB();
     }
 
 
     public int getNumberOfCameras() {
-        return mImpl.getNumberOfCameras();
+        return Camera.getNumberOfCameras();
     }
 
     public Camera openCamera(final int id) {
-        return mImpl.openCamera(id);
+        return Camera.open(id);
     }
 
     public Camera openDefaultCamera() {
-        return mImpl.openDefaultCamera();
+        return Camera.open(0);
     }
 
     public Camera openFrontCamera() {
-        return mImpl.openCameraFacing(CameraInfo.CAMERA_FACING_FRONT);
+        return Camera.open(getCameraId(CameraInfo.CAMERA_FACING_FRONT));
     }
 
     public Camera openBackCamera() {
-        return mImpl.openCameraFacing(CameraInfo.CAMERA_FACING_BACK);
+        return Camera.open(getCameraId(CameraInfo.CAMERA_FACING_BACK));
     }
 
     public boolean hasFrontCamera() {
-        return mImpl.hasCamera(CameraInfo.CAMERA_FACING_FRONT);
+        return getCameraId(CameraInfo.CAMERA_FACING_FRONT) != -1;
     }
 
     public boolean hasBackCamera() {
-        return mImpl.hasCamera(CameraInfo.CAMERA_FACING_BACK);
+        return getCameraId(CameraInfo.CAMERA_FACING_BACK) != -1;
     }
 
     public void getCameraInfo(final int cameraId, final CameraInfo2 cameraInfo) {
-        mImpl.getCameraInfo(cameraId, cameraInfo);
+        CameraInfo info = new CameraInfo();
+        Camera.getCameraInfo(cameraId, info);
+        cameraInfo.facing = info.facing;
+        cameraInfo.orientation = info.orientation;
     }
 
     public void setCameraDisplayOrientation(final Activity activity,
@@ -96,6 +97,18 @@ public class CameraHelper {
             result = (info.orientation - degrees + 360) % 360;
         }
         return result;
+    }
+
+    private int getCameraId(final int facing) {
+        int numberOfCameras = Camera.getNumberOfCameras();
+        CameraInfo info = new CameraInfo();
+        for (int id = 0; id < numberOfCameras; id++) {
+            Camera.getCameraInfo(id, info);
+            if (info.facing == facing) {
+                return id;
+            }
+        }
+        return -1;
     }
 
     public static class CameraInfo2 {
