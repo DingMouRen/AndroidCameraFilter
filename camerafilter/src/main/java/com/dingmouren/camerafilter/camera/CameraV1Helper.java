@@ -21,6 +21,11 @@ import android.content.Context;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.view.Surface;
+/**
+ * Created by 钉某人
+ * github: https://github.com/DingMouRen
+ * email: naildingmouren@gmail.com
+ */
 
 public class CameraV1Helper {
 

@@ -43,7 +43,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.nio.IntBuffer;
 import java.util.concurrent.Semaphore;
-
+/**
+ * Created by 钉某人
+ * github: https://github.com/DingMouRen
+ * email: naildingmouren@gmail.com
+ */
 public class GLImageView extends FrameLayout {
 
     private GLSurfaceView mGLSurfaceView;

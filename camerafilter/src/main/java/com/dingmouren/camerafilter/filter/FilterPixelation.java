@@ -17,11 +17,12 @@
 package com.dingmouren.camerafilter.filter;
 
 import android.opengl.GLES20;
-
-
 /**
- * Applies a grayscale effect to the image.
+ * Created by 钉某人
+ * github: https://github.com/DingMouRen
+ * email: naildingmouren@gmail.com
  */
+
 public class FilterPixelation extends FilterBase {
     public static final String PIXELATION_FRAGMENT_SHADER = "" +
             "precision highp float;\n" +

@@ -46,7 +46,11 @@ import javax.microedition.khronos.opengles.GL10;
 
 import static com.dingmouren.camerafilter.utils.TextureRotationUtil.TEXTURE_NO_ROTATION;
 
-
+/**
+ * Created by 钉某人
+ * github: https://github.com/DingMouRen
+ * email: naildingmouren@gmail.com
+ */
 @TargetApi(11)
 public class CameraRenderer implements Renderer, PreviewCallback {
     public static final int NO_IMAGE = -1;
@@ -177,7 +181,7 @@ public class CameraRenderer implements Renderer, PreviewCallback {
         }
     }
 
-    public void setUpSurfaceTexture(final Camera camera) {
+    public void setCameraPreviewTexture(final Camera camera) {
         runOnDraw(new Runnable() {
             @Override
             public void run() {

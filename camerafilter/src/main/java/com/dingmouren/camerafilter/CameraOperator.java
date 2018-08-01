@@ -54,10 +54,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
-
 /**
- * The main accessor for CameraOperator functionality. This class helps to do common
- * tasks through a simple interface.
+ * Created by 钉某人
+ * github: https://github.com/DingMouRen
+ * email: naildingmouren@gmail.com
  */
 public class CameraOperator {
     private final Context mContext;
@@ -71,7 +71,6 @@ public class CameraOperator {
         if (!supportsOpenGLES2(context)) {
             throw new IllegalStateException("OpenGL ES 2.0 is not supported on this phone.");
         }
-
         mContext = context;
         mFilter = new FilterBase();
         mRenderer = new CameraRenderer(mFilter);
@@ -93,7 +92,6 @@ public class CameraOperator {
 
     /**
      * 设置将显示预览的GLSurfaceView。
-     *
      * @param glSurfaceView the GLSurfaceView
      */
     public void setGLSurfaceView(final GLSurfaceView glSurfaceView) {
@@ -135,11 +133,10 @@ public class CameraOperator {
      * @param flipHorizontal 如果图像应水平翻转
      * @param flipVertical   如果图像应垂直翻转
      */
-    public void setUpCamera(final Camera camera, final int degrees, final boolean flipHorizontal,
-                            final boolean flipVertical) {
+    public void setUpCamera(final Camera camera, final int degrees, final boolean flipHorizontal, final boolean flipVertical) {
         mGlSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) { // 大于level 10
-            setUpSurfaceTexture(camera);
+            setCameraPreviewTexture(camera);
         } else { // 小于level 10
             camera.setPreviewCallback(mRenderer);
             camera.startPreview();
@@ -165,8 +162,8 @@ public class CameraOperator {
      * @param camera
      */
     @TargetApi(11)
-    private void setUpSurfaceTexture(final Camera camera) {
-        mRenderer.setUpSurfaceTexture(camera);
+    private void setCameraPreviewTexture(final Camera camera) {
+        mRenderer.setCameraPreviewTexture(camera);
     }
 
     /**
@@ -258,7 +255,7 @@ public class CameraOperator {
      * @param uri
      * @return
      */
-    private String getPath(final Uri uri) {
+    public String getUriPath(final Uri uri) {
         String[] projection = {
                 MediaStore.Images.Media.DATA,
         };
@@ -309,8 +306,7 @@ public class CameraOperator {
         }
 
         CameraRenderer renderer = new CameraRenderer(mFilter);
-        renderer.setRotation(Rotation.NORMAL,
-                mRenderer.isFlippedHorizontally(), mRenderer.isFlippedVertically());
+        renderer.setRotation(Rotation.NORMAL, mRenderer.isFlippedHorizontally(), mRenderer.isFlippedVertically());
         renderer.setScaleType(mScaleType);
         PixelBuffer buffer = new PixelBuffer(bitmap.getWidth(), bitmap.getHeight());
         buffer.setRenderer(renderer);
@@ -388,7 +384,6 @@ public class CameraOperator {
      * @param fileName   the file name
      * @param listener   the listener
      */
-    @Deprecated
     public void saveToPictures(final Bitmap bitmap, final String folderName, final String fileName,
                                final OnPictureSavedListener listener) {
         new SaveImageTask(bitmap, folderName, fileName, this,listener).execute();
@@ -404,6 +399,7 @@ public class CameraOperator {
     }
 
 
+
     /**
      * 获取输出的宽度
      *
@@ -415,8 +411,7 @@ public class CameraOperator {
         } else if (mCurrentBitmap != null) {
             return mCurrentBitmap.getWidth();
         } else {
-            WindowManager windowManager =
-                    (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+            WindowManager windowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
             Display display = windowManager.getDefaultDisplay();
             return display.getWidth();
         }
@@ -433,19 +428,10 @@ public class CameraOperator {
         } else if (mCurrentBitmap != null) {
             return mCurrentBitmap.getHeight();
         } else {
-            WindowManager windowManager =
-                    (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+            WindowManager windowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
             Display display = windowManager.getDefaultDisplay();
             return display.getHeight();
         }
-    }
-
-
-    /**
-     * 图片保存结束后的监听
-     */
-    public interface OnPictureSavedListener {
-        void onPictureSaved(Uri uri, final Bitmap image);
     }
 
 
@@ -459,6 +445,17 @@ public class CameraOperator {
 
     public Context getContext() {
         return mContext;
+    }
+
+    public GLSurfaceView getGlSurfaceView(){
+        return mGlSurfaceView;
+    }
+
+    /**
+     * 图片保存结束后的监听
+     */
+    public interface OnPictureSavedListener {
+        void onPictureSaved(Uri uri, final Bitmap image);
     }
 
     public interface ResponseListener<T> {

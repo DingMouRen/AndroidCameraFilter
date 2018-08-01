@@ -28,6 +28,11 @@ import java.io.InputStream;
 import java.nio.FloatBuffer;
 import java.util.LinkedList;
 
+/**
+ * Created by 钉某人
+ * github: https://github.com/DingMouRen
+ * email: naildingmouren@gmail.com
+ */
 
 public class FilterBase {
     public static final String NO_FILTER_VERTEX_SHADER = "" +

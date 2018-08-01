@@ -16,15 +16,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
 import com.dingmouren.camerafilter.camera.CameraV1Helper;
 import com.dingmouren.camerafilter.camera.CameraV1;
 import com.dingmouren.camerafilter.filter.FilterBase;
+import com.dingmouren.camerafilter.filter.FilterBrightness;
 import com.dingmouren.camerafilter.filter.FilterColorInvert;
+import com.dingmouren.camerafilter.filter.FilterColorMatrix;
+import com.dingmouren.camerafilter.filter.FilterContrast;
+import com.dingmouren.camerafilter.filter.FilterGamma;
+import com.dingmouren.camerafilter.filter.FilterGrayscale;
+import com.dingmouren.camerafilter.filter.FilterHue;
 import com.dingmouren.camerafilter.filter.FilterPixelation;
 import com.dingmouren.camerafilter.CameraOperator;
+import com.dingmouren.camerafilter.filter.FilterSepia;
+import com.dingmouren.camerafilter.utils.Rotation;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,6 +43,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static com.dingmouren.camerafilter.utils.Rotation.ROTATION_90;
 
 /**
  * Created by 钉某人
@@ -51,8 +62,8 @@ public class GLActivityDemo_11 extends AppCompatActivity {
 
     private List<FilterBase> mFilters = new ArrayList<>();
     private int index = 0;
-
-    private ImageView img;
+    private TextView mTvIndex;
+    private ImageView imageView;
 
 
 
@@ -62,7 +73,8 @@ public class GLActivityDemo_11 extends AppCompatActivity {
         setContentView(R.layout.activity_opengl_demo11);
 
         mGLSurfaceView = findViewById(R.id.gl_surface_view);
-        img = findViewById(R.id.img);
+        mTvIndex = findViewById(R.id.tv_index);
+        imageView = findViewById(R.id.img);
 
 
         mCameraOperator = new CameraOperator(this);
@@ -74,124 +86,40 @@ public class GLActivityDemo_11 extends AppCompatActivity {
         FilterBase filterBase = new FilterBase();
         FilterPixelation filterPixelation = new FilterPixelation();
         FilterColorInvert filterColorInvert = new FilterColorInvert();
+        FilterContrast filterContrast = new FilterContrast();
+        FilterHue filterHue = new FilterHue();
+        FilterGamma filterGamma = new FilterGamma();
+        FilterBrightness filterBrightness = new FilterBrightness();
+        FilterSepia filterSepia = new FilterSepia();
+        FilterGrayscale filterGrayscale = new FilterGrayscale();
 
         mFilters.add(filterBase);
         mFilters.add(filterPixelation);
         mFilters.add(filterColorInvert);
+        mFilters.add(filterContrast);
+        mFilters.add(filterHue);
+        mFilters.add(filterGamma);
+        mFilters.add(filterBrightness);
+        mFilters.add(filterSepia);
+        mFilters.add(filterGrayscale);
 
         mCameraOperator.setFilter(filterBase);
 
-
     }
 
-    public void getPhoto(View view){
-        if (mCameraV1.getCamera().getParameters().getFocusMode().equals(
-                Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
-            takePicture();
-        } else {
-            mCameraV1.getCamera().autoFocus(new Camera.AutoFocusCallback() {
-
-                @Override
-                public void onAutoFocus(final boolean success, final Camera camera) {
-                    takePicture();
-                }
-            });
-        }
-    }
-
-
-    private void takePicture() {
-        // TODO get a size that is about the size of the screen
-        Camera.Parameters params = mCameraV1.getCamera().getParameters();
-        params.setRotation(90);
-        mCameraV1.getCamera().setParameters(params);
-        for (Camera.Size size : params.getSupportedPictureSizes()) {
-
-        }
-        mCameraV1.getCamera().takePicture(null, null,
-                new Camera.PictureCallback() {
-                    @Override
-                    public void onPictureTaken(byte[] data, final Camera camera) {
-
-                        final File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-                        if (pictureFile == null) {
-                            Log.d("ASDF",
-                                    "Error creating media file, check storage permissions");
-                            return;
-                        }
-
-                        try {
-                            FileOutputStream fos = new FileOutputStream(pictureFile);
-                            fos.write(data);
-                            fos.close();
-                        } catch (FileNotFoundException e) {
-                            Log.d("ASDF", "File not found: " + e.getMessage());
-                        } catch (IOException e) {
-                            Log.d("ASDF", "Error accessing file: " + e.getMessage());
-                        }
-
-                        Bitmap bitmap = BitmapFactory.decodeFile(pictureFile.getAbsolutePath());
-                        /*在这里的bitmap是没有滤镜的*/
-//                        img.setImageBitmap(bitmap);
-                        mGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-                        mCameraOperator.saveToPictures(bitmap, "GPUImage",
-                                System.currentTimeMillis() + ".jpg",
-                                new CameraOperator.OnPictureSavedListener() {
-
-                                    @Override
-                                    public void onPictureSaved(final Uri uri,final Bitmap bitmap) {
-                                        /*这里的bitmao是经过滤镜处理过的*/
-                                        img.setImageBitmap(bitmap);
-                                        Toast.makeText(GLActivityDemo_11.this,"图片保存在:"+uri.getPath(),Toast.LENGTH_SHORT).show();
-                                        pictureFile.delete();
-                                        camera.startPreview();
-                                        mGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
-                                    }
-                                });
-                    }
-                });
-    }
-
-    public static final int MEDIA_TYPE_IMAGE = 1;
-    public static final int MEDIA_TYPE_VIDEO = 2;
-
-    private static File getOutputMediaFile(final int type) {
-        // To be safe, you should check that the SDCard is mounted
-        // using Environment.getExternalStorageState() before doing this.
-
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "MyCameraApp");
-        // This location works best if you want the created images to be shared
-        // between applications and persist after your app has been uninstalled.
-
-        // Create the storage directory if it does not exist
-        if (!mediaStorageDir.exists()) {
-            if (!mediaStorageDir.mkdirs()) {
-                Log.d("MyCameraApp", "failed to create directory");
-                return null;
-            }
-        }
-
-        // Create a media file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        File mediaFile;
-        if (type == MEDIA_TYPE_IMAGE) {
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                    "IMG_" + timeStamp + ".jpg");
-        } else if (type == MEDIA_TYPE_VIDEO) {
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                    "VID_" + timeStamp + ".mp4");
-        } else {
-            return null;
-        }
-
-        return mediaFile;
+    public void getPhoto(View view) {
+        mCameraV1.takePicture("test", System.currentTimeMillis() + ".jpg");
     }
 
 
     public void changeFilter(View view) {
-        mCameraOperator.setFilter(mFilters.get(index%3));
+        mCameraOperator.setFilter(mFilters.get(index % mFilters.size()));
+        mTvIndex.setText(index % mFilters.size() +"");
         index++;
+    }
+
+    public void switchCamera(View view){
+        mCameraV1.switchCamera();
     }
 
     @Override

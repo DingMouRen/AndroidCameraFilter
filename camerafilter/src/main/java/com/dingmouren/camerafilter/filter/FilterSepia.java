@@ -15,27 +15,25 @@
  */
 
 package com.dingmouren.camerafilter.filter;
+
 /**
  * Created by 钉某人
  * github: https://github.com/DingMouRen
  * email: naildingmouren@gmail.com
- * 反转图像中的所有颜色
+ * 应用简单的棕褐色效果。
  */
+public class FilterSepia extends FilterColorMatrix {
 
-public class FilterColorInvert extends FilterBase {
-    public static final String COLOR_INVERT_FRAGMENT_SHADER = "" +
-            "varying highp vec2 textureCoordinate;\n" +
-            "\n" +
-            "uniform sampler2D inputImageTexture;\n" +
-            "\n" +
-            "void main()\n" +
-            "{\n" +
-            "    lowp vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);\n" +
-            "    \n" +
-            "    gl_FragColor = vec4((1.0 - textureColor.rgb), textureColor.w);\n" +
-            "}";
+    public FilterSepia() {
+        this(1.0f);
+    }
 
-    public FilterColorInvert() {
-        super(NO_FILTER_VERTEX_SHADER, COLOR_INVERT_FRAGMENT_SHADER);
+    public FilterSepia(final float intensity) {
+        super(intensity, new float[] {
+                0.3588f, 0.7044f, 0.1368f, 0.0f,
+                0.2990f, 0.5870f, 0.1140f, 0.0f,
+                0.2392f, 0.4696f, 0.0912f, 0.0f,
+                0f, 0f, 0f, 1.0f
+        });
     }
 }

@@ -19,23 +19,27 @@ package com.dingmouren.camerafilter.filter;
  * Created by 钉某人
  * github: https://github.com/DingMouRen
  * email: naildingmouren@gmail.com
- * 反转图像中的所有颜色
+ * 对图像应用灰度效果。
  */
-
-public class FilterColorInvert extends FilterBase {
-    public static final String COLOR_INVERT_FRAGMENT_SHADER = "" +
-            "varying highp vec2 textureCoordinate;\n" +
+public class FilterGrayscale extends FilterBase {
+    public static final String GRAYSCALE_FRAGMENT_SHADER = "" +
+            "precision highp float;\n" +
+            "\n" +
+            "varying vec2 textureCoordinate;\n" +
             "\n" +
             "uniform sampler2D inputImageTexture;\n" +
             "\n" +
+            "const highp vec3 W = vec3(0.2125, 0.7154, 0.0721);\n" +
+            "\n" +
             "void main()\n" +
             "{\n" +
-            "    lowp vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);\n" +
-            "    \n" +
-            "    gl_FragColor = vec4((1.0 - textureColor.rgb), textureColor.w);\n" +
+            "  lowp vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);\n" +
+            "  float luminance = dot(textureColor.rgb, W);\n" +
+            "\n" +
+            "  gl_FragColor = vec4(vec3(luminance), textureColor.a);\n" +
             "}";
 
-    public FilterColorInvert() {
-        super(NO_FILTER_VERTEX_SHADER, COLOR_INVERT_FRAGMENT_SHADER);
+    public FilterGrayscale() {
+        super(NO_FILTER_VERTEX_SHADER, GRAYSCALE_FRAGMENT_SHADER);
     }
 }

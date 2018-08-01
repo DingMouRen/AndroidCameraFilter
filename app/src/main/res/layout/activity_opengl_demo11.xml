@@ -28,5 +28,21 @@
         android:layout_height="100dp"
         android:layout_alignParentBottom="true"
         />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="前后"
+        android:onClick="switchCamera"
+        />
+    <TextView
+        android:id="@+id/tv_index"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
+        />
 
 </RelativeLayout>
