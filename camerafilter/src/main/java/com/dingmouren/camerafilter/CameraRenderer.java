@@ -28,7 +28,6 @@ import android.opengl.GLSurfaceView.Renderer;
 
 
 import com.dingmouren.camerafilter.filter.FilterBase;
-import com.dingmouren.camerafilter.utils.CameraView;
 import com.dingmouren.camerafilter.utils.OpenGlUtils;
 import com.dingmouren.camerafilter.utils.Rotation;
 import com.dingmouren.camerafilter.utils.TextureRotationUtil;
@@ -79,7 +78,7 @@ public class CameraRenderer implements Renderer, PreviewCallback {
     private Rotation mRotation;
     private boolean mFlipHorizontal;
     private boolean mFlipVertical;
-    private CameraView.ScaleType mScaleType = CameraView.ScaleType.CENTER_CROP;
+    private CameraOperator.ScaleType mScaleType = CameraOperator.ScaleType.CENTER_CROP;
 
     private float mBackgroundRed = 0;
     private float mBackgroundGreen = 0;
@@ -263,7 +262,7 @@ public class CameraRenderer implements Renderer, PreviewCallback {
         });
     }
 
-    public void setScaleType(CameraView.ScaleType scaleType) {
+    public void setScaleType(CameraOperator.ScaleType scaleType) {
         mScaleType = scaleType;
     }
 
@@ -294,7 +293,7 @@ public class CameraRenderer implements Renderer, PreviewCallback {
 
         float[] cube = CUBE;
         float[] textureCords = TextureRotationUtil.getRotation(mRotation, mFlipHorizontal, mFlipVertical);
-        if (mScaleType == CameraView.ScaleType.CENTER_CROP) {
+        if (mScaleType == CameraOperator.ScaleType.CENTER_CROP) {
             float distHorizontal = (1 - 1 / ratioWidth) / 2;
             float distVertical = (1 - 1 / ratioHeight) / 2;
             textureCords = new float[]{

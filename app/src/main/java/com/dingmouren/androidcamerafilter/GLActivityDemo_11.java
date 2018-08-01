@@ -19,19 +19,21 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 
-import com.dingmouren.camerafilter.camera.CameraHelper;
+import com.dingmouren.camerafilter.camera.CameraV1Helper;
 import com.dingmouren.camerafilter.camera.CameraV1;
 import com.dingmouren.camerafilter.filter.FilterBase;
 import com.dingmouren.camerafilter.filter.FilterColorInvert;
 import com.dingmouren.camerafilter.filter.FilterPixelation;
-import com.dingmouren.camerafilter.utils.CameraView;
+import com.dingmouren.camerafilter.CameraOperator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by 钉某人
@@ -42,14 +44,12 @@ import java.util.Date;
 public class GLActivityDemo_11 extends AppCompatActivity {
 
     private GLSurfaceView mGLSurfaceView;
-    private CameraView mCameraView;
+    private CameraOperator mCameraOperator;
 
-    private CameraHelper mCameraHelper;
+    private CameraV1Helper mCameraV1Helper;
     private CameraV1 mCameraV1;
 
-    private FilterPixelation filterPixelation;
-    private FilterColorInvert filterColorInvert;
-    private FilterBase filterBase;
+    private List<FilterBase> mFilters = new ArrayList<>();
     private int index = 0;
 
     private ImageView img;
@@ -65,26 +65,31 @@ public class GLActivityDemo_11 extends AppCompatActivity {
         img = findViewById(R.id.img);
 
 
-        mCameraView = new CameraView(this);
-        mCameraView.setGLSurfaceView(mGLSurfaceView);
+        mCameraOperator = new CameraOperator(this);
+        mCameraOperator.setGLSurfaceView(mGLSurfaceView);
 
-        mCameraHelper = new CameraHelper(this);
+        mCameraV1Helper = new CameraV1Helper(this);
+        mCameraV1 = new CameraV1(this, mCameraV1Helper, mCameraOperator);
 
-        mCameraV1 = new CameraV1(this,mCameraHelper, mCameraView);
-        filterBase = new FilterBase();
-        filterPixelation = new FilterPixelation();
-        filterColorInvert = new FilterColorInvert();
-        mCameraView.setFilter(filterBase);
+        FilterBase filterBase = new FilterBase();
+        FilterPixelation filterPixelation = new FilterPixelation();
+        FilterColorInvert filterColorInvert = new FilterColorInvert();
+
+        mFilters.add(filterBase);
+        mFilters.add(filterPixelation);
+        mFilters.add(filterColorInvert);
+
+        mCameraOperator.setFilter(filterBase);
 
 
     }
 
     public void getPhoto(View view){
-        if (mCameraV1.mCamera.getParameters().getFocusMode().equals(
+        if (mCameraV1.getCamera().getParameters().getFocusMode().equals(
                 Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
             takePicture();
         } else {
-            mCameraV1.mCamera.autoFocus(new Camera.AutoFocusCallback() {
+            mCameraV1.getCamera().autoFocus(new Camera.AutoFocusCallback() {
 
                 @Override
                 public void onAutoFocus(final boolean success, final Camera camera) {
@@ -97,13 +102,13 @@ public class GLActivityDemo_11 extends AppCompatActivity {
 
     private void takePicture() {
         // TODO get a size that is about the size of the screen
-        Camera.Parameters params = mCameraV1.mCamera.getParameters();
+        Camera.Parameters params = mCameraV1.getCamera().getParameters();
         params.setRotation(90);
-        mCameraV1.mCamera.setParameters(params);
+        mCameraV1.getCamera().setParameters(params);
         for (Camera.Size size : params.getSupportedPictureSizes()) {
 
         }
-        mCameraV1.mCamera.takePicture(null, null,
+        mCameraV1.getCamera().takePicture(null, null,
                 new Camera.PictureCallback() {
                     @Override
                     public void onPictureTaken(byte[] data, final Camera camera) {
@@ -129,9 +134,9 @@ public class GLActivityDemo_11 extends AppCompatActivity {
                         /*在这里的bitmap是没有滤镜的*/
 //                        img.setImageBitmap(bitmap);
                         mGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-                        mCameraView.saveToPictures(bitmap, "GPUImage",
+                        mCameraOperator.saveToPictures(bitmap, "GPUImage",
                                 System.currentTimeMillis() + ".jpg",
-                                new CameraView.OnPictureSavedListener() {
+                                new CameraOperator.OnPictureSavedListener() {
 
                                     @Override
                                     public void onPictureSaved(final Uri uri,final Bitmap bitmap) {
@@ -185,17 +190,7 @@ public class GLActivityDemo_11 extends AppCompatActivity {
 
 
     public void changeFilter(View view) {
-        switch (index % 3) {
-            case 0:
-                mCameraView.setFilter(filterBase);
-                break;
-            case 1:
-                mCameraView.setFilter(filterPixelation);
-                break;
-            case 2:
-                mCameraView.setFilter(filterColorInvert);
-                break;
-        }
+        mCameraOperator.setFilter(mFilters.get(index%3));
         index++;
     }
 
@@ -209,30 +204,5 @@ public class GLActivityDemo_11 extends AppCompatActivity {
     protected void onPause() {
         mCameraV1.onPause();
         super.onPause();
-    }
-
-
-
-
-    public static Uri getImageContentUri(Context context, File imageFile) {
-        String filePath = imageFile.getAbsolutePath();
-        Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                new String[]{MediaStore.Images.Media._ID}, MediaStore.Images.Media.DATA + "=? ",
-                new String[]{filePath}, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            int id = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
-            Uri baseUri = Uri.parse("content://media/external/images/media");
-            return Uri.withAppendedPath(baseUri, "" + id);
-        } else {
-            if (imageFile.exists()) {
-                ContentValues values = new ContentValues();
-                values.put(MediaStore.Images.Media.DATA, filePath);
-                return context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-            } else {
-                return null;
-            }
-        }
-
-
     }
 }

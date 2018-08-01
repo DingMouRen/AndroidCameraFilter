@@ -22,9 +22,9 @@ import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.view.Surface;
 
-public class CameraHelper {
+public class CameraV1Helper {
 
-    public CameraHelper(final Context context) {
+    public CameraV1Helper(final Context context) {
     }
 
 

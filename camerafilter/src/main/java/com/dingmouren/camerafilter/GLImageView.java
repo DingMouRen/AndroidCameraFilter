@@ -36,7 +36,6 @@ import android.widget.ProgressBar;
 
 
 import com.dingmouren.camerafilter.filter.FilterBase;
-import com.dingmouren.camerafilter.utils.CameraView;
 import com.dingmouren.camerafilter.utils.Rotation;
 
 import java.io.File;
@@ -48,7 +47,7 @@ import java.util.concurrent.Semaphore;
 public class GLImageView extends FrameLayout {
 
     private GLSurfaceView mGLSurfaceView;
-    private CameraView mCameraView;
+    private CameraOperator mCameraOperator;
     private FilterBase mFilter;
     public Size mForceSize = null;
     private float mRatio = 0.0f;
@@ -66,8 +65,8 @@ public class GLImageView extends FrameLayout {
     private void init(Context context, AttributeSet attrs) {
         mGLSurfaceView = new GPUImageGLSurfaceView(context, attrs);
         addView(mGLSurfaceView);
-        mCameraView = new CameraView(getContext());
-        mCameraView.setGLSurfaceView(mGLSurfaceView);
+        mCameraOperator = new CameraOperator(getContext());
+        mCameraOperator.setGLSurfaceView(mGLSurfaceView);
     }
 
     @Override
@@ -95,12 +94,12 @@ public class GLImageView extends FrameLayout {
     }
 
     /**
-     * Retrieve the CameraView instance used by this view.
+     * Retrieve the CameraOperator instance used by this view.
      *
-     * @return used CameraView instance
+     * @return used CameraOperator instance
      */
-    public CameraView getGPUImage() {
-        return mCameraView;
+    public CameraOperator getGPUImage() {
+        return mCameraOperator;
     }
 
     /**
@@ -111,23 +110,23 @@ public class GLImageView extends FrameLayout {
      * @param blue red color value
      */
     public void setBackgroundColor(float red, float green, float blue) {
-        mCameraView.setBackgroundColor(red, green, blue);
+        mCameraOperator.setBackgroundColor(red, green, blue);
     }
 
-    // TODO Should be an xml attribute. But then CameraView can not be distributed as .jar anymore.
+    // TODO Should be an xml attribute. But then CameraOperator can not be distributed as .jar anymore.
     public void setRatio(float ratio) {
         mRatio = ratio;
         mGLSurfaceView.requestLayout();
-        mCameraView.deleteImage();
+        mCameraOperator.deleteImage();
     }
 
     /**
-     * Set the scale type of CameraView.
+     * Set the scale type of CameraOperator.
      *
      * @param scaleType the new ScaleType
      */
-    public void setScaleType(CameraView.ScaleType scaleType) {
-        mCameraView.setScaleType(scaleType);
+    public void setScaleType(CameraOperator.ScaleType scaleType) {
+        mCameraOperator.setScaleType(scaleType);
     }
 
     /**
@@ -136,7 +135,7 @@ public class GLImageView extends FrameLayout {
      * @param rotation new rotation
      */
     public void setRotation(Rotation rotation) {
-        mCameraView.setRotation(rotation);
+        mCameraOperator.setRotation(rotation);
         requestRender();
     }
 
@@ -147,7 +146,7 @@ public class GLImageView extends FrameLayout {
      */
     public void setFilter(FilterBase filter) {
         mFilter = filter;
-        mCameraView.setFilter(filter);
+        mCameraOperator.setFilter(filter);
         requestRender();
     }
 
@@ -166,7 +165,7 @@ public class GLImageView extends FrameLayout {
      * @param bitmap the new image
      */
     public void setImage(final Bitmap bitmap) {
-        mCameraView.setImage(bitmap);
+        mCameraOperator.setImage(bitmap);
     }
 
     /**
@@ -175,7 +174,7 @@ public class GLImageView extends FrameLayout {
      * @param uri the uri of the new image
      */
     public void setImage(final Uri uri) {
-        mCameraView.setImage(uri);
+        mCameraOperator.setImage(uri);
     }
 
     /**
@@ -184,7 +183,7 @@ public class GLImageView extends FrameLayout {
      * @param file the file of the new image
      */
     public void setImage(final File file) {
-        mCameraView.setImage(file);
+        mCameraOperator.setImage(file);
     }
 
     public void requestRender() {
@@ -268,7 +267,7 @@ public class GLImageView extends FrameLayout {
         waiter.acquire();
 
         // Run one render pass
-        mCameraView.runOnGLThread(new Runnable() {
+        mCameraOperator.runOnGLThread(new Runnable() {
             @Override
             public void run() {
                 waiter.release();
@@ -312,7 +311,7 @@ public class GLImageView extends FrameLayout {
 
         // Take picture on OpenGL thread
         final int[] pixelMirroredArray = new int[width * height];
-        mCameraView.runOnGLThread(new Runnable() {
+        mCameraOperator.runOnGLThread(new Runnable() {
             @Override
             public void run() {
                 final IntBuffer pixelBuffer = IntBuffer.allocate(width * height);

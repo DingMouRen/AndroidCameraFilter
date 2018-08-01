@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dingmouren.camerafilter.utils;
+package com.dingmouren.camerafilter;
 
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
@@ -40,8 +40,12 @@ import android.view.Display;
 import android.view.WindowManager;
 
 
-import com.dingmouren.camerafilter.CameraRenderer;
 import com.dingmouren.camerafilter.filter.FilterBase;
+import com.dingmouren.camerafilter.task.LoadImageFileTask;
+import com.dingmouren.camerafilter.task.LoadImageUriTask;
+import com.dingmouren.camerafilter.task.SaveImageTask;
+import com.dingmouren.camerafilter.utils.PixelBuffer;
+import com.dingmouren.camerafilter.utils.Rotation;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -52,10 +56,10 @@ import java.net.URL;
 import java.util.List;
 
 /**
- * The main accessor for CameraView functionality. This class helps to do common
+ * The main accessor for CameraOperator functionality. This class helps to do common
  * tasks through a simple interface.
  */
-public class CameraView {
+public class CameraOperator {
     private final Context mContext;
     private final CameraRenderer mRenderer;
     private GLSurfaceView mGlSurfaceView;
@@ -63,7 +67,7 @@ public class CameraView {
     private Bitmap mCurrentBitmap;
     private ScaleType mScaleType = ScaleType.CENTER_CROP;
 
-    public CameraView(final Context context) {
+    public CameraOperator(final Context context) {
         if (!supportsOpenGLES2(context)) {
             throw new IllegalStateException("OpenGL ES 2.0 is not supported on this phone.");
         }
@@ -75,6 +79,7 @@ public class CameraView {
 
     /**
      * 检查当前设备是否支持OpenGL ES 2.0。
+     *
      * @param context the context
      * @return true, if successful
      */
@@ -87,8 +92,8 @@ public class CameraView {
     }
 
     /**
-     * Sets the GLSurfaceView which will display the preview.
-     *设置将显示预览的GLSurfaceView。
+     * 设置将显示预览的GLSurfaceView。
+     *
      * @param glSurfaceView the GLSurfaceView
      */
     public void setGLSurfaceView(final GLSurfaceView glSurfaceView) {
@@ -102,18 +107,17 @@ public class CameraView {
     }
 
     /**
-     * Sets the background color
-     * 设置清屏颜色,应该放在渲染器中
-     * @param red red color value
+     * 设置清屏颜色
+     *
+     * @param red   red color value
      * @param green green color value
-     * @param blue red color value
+     * @param blue  red color value
      */
     public void setBackgroundColor(float red, float green, float blue) {
         mRenderer.setBackgroundColor(red, green, blue);
     }
 
     /**
-     * Request the preview to be rendered again.
      * 请求再次渲染预览。
      */
     public void requestRender() {
@@ -124,15 +128,15 @@ public class CameraView {
 
 
     /**
-     * Sets the up camera to be connected to CameraView to get a filtered preview.
      * 设置要连接到GPUImage的摄像头以获得过滤预览。
-     * @param camera the camera
-     * @param degrees 通过旋转图像的度数
+     *
+     * @param camera         the camera
+     * @param degrees        通过旋转图像的度数
      * @param flipHorizontal 如果图像应水平翻转
-     * @param flipVertical 如果图像应垂直翻转
+     * @param flipVertical   如果图像应垂直翻转
      */
     public void setUpCamera(final Camera camera, final int degrees, final boolean flipHorizontal,
-            final boolean flipVertical) {
+                            final boolean flipVertical) {
         mGlSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) { // 大于level 10
             setUpSurfaceTexture(camera);
@@ -157,6 +161,7 @@ public class CameraView {
 
     /**
      * 设置相机预览的surfacetexture
+     *
      * @param camera
      */
     @TargetApi(11)
@@ -166,6 +171,7 @@ public class CameraView {
 
     /**
      * 设置滤镜
+     *
      * @param filter the new filter
      */
     public void setFilter(final FilterBase filter) {
@@ -177,6 +183,7 @@ public class CameraView {
     /**
      * Sets the image on which the filter should be applied.
      * 设置应在其上应用滤镜的图像。
+     *
      * @param bitmap the new image
      */
     public void setImage(final Bitmap bitmap) {
@@ -186,9 +193,10 @@ public class CameraView {
     }
 
     /**
-     * This sets the scale type of CameraView. This has to be run before setting the image.
+     * This sets the scale type of CameraOperator. This has to be run before setting the image.
      * If image is set and scale type changed, image needs to be reset.
      * 这将设置GPUImage的缩放类型。, 必须在设置图像之前运行。 , *如果设置了图像并更改了比例类型，则需要重置图像
+     *
      * @param scaleType The new ScaleType
      */
     public void setScaleType(ScaleType scaleType) {
@@ -200,8 +208,8 @@ public class CameraView {
     }
 
     /**
-     * Sets the rotation of the displayed image.
      * 设置显示图像的旋转。
+     *
      * @param rotation new rotation
      */
     public void setRotation(Rotation rotation) {
@@ -209,8 +217,8 @@ public class CameraView {
     }
 
     /**
-     * Sets the rotation of the displayed image with flip options.
      * 使用翻转选项设置显示图像的旋转。
+     *
      * @param rotation new rotation
      */
     public void setRotation(Rotation rotation, boolean flipHorizontal, boolean flipVertical) {
@@ -218,7 +226,6 @@ public class CameraView {
     }
 
     /**
-     * Deletes the current image.
      * 删除当前图像
      */
     public void deleteImage() {
@@ -228,8 +235,8 @@ public class CameraView {
     }
 
     /**
-     * Sets the image on which the filter should be applied from a Uri.
      * 设置应从Uri应用滤镜的图像
+     *
      * @param uri the uri of the new image
      */
     public void setImage(final Uri uri) {
@@ -237,8 +244,8 @@ public class CameraView {
     }
 
     /**
-     * Sets the image on which the filter should be applied from a File.
      * 设置应从File应用过滤器的图像。
+     *
      * @param file the file of the new image
      */
     public void setImage(final File file) {
@@ -247,6 +254,7 @@ public class CameraView {
 
     /**
      * 获取uri的路径
+     *
      * @param uri
      * @return
      */
@@ -266,8 +274,8 @@ public class CameraView {
     }
 
     /**
-     * Gets the current displayed image with applied filter as a Bitmap.
-     *  给当前位图添加滤镜
+     * 给当前位图添加滤镜
+     *
      * @return the current image with filter applied
      */
     public Bitmap getBitmapWithFilterApplied() {
@@ -275,10 +283,7 @@ public class CameraView {
     }
 
     /**
-     * Gets the given bitmap with current filter applied as a Bitmap.
      * 给bitamp添加滤镜
-     * @param bitmap the bitmap on which the current filter should be applied
-     * @return the bitmap with filter applied
      */
     public Bitmap getBitmapWithFilterApplied(final Bitmap bitmap) {
         if (mGlSurfaceView != null) {
@@ -287,13 +292,13 @@ public class CameraView {
 
                 @Override
                 public void run() {
-                    synchronized(mFilter) {
+                    synchronized (mFilter) {
                         mFilter.destroy();
                         mFilter.notify();
                     }
                 }
             });
-            synchronized(mFilter) {
+            synchronized (mFilter) {
                 requestRender();
                 try {
                     mFilter.wait();
@@ -330,9 +335,9 @@ public class CameraView {
      * Whenever a new Bitmap is ready, the listener will be called with the
      * bitmap. The order of the calls to the listener will be the same as the
      * filter order.
-     * 获取图像上多个滤镜的图像
-     * @param bitmap the bitmap on which the filters will be applied
-     * @param filters the filters which will be applied on the bitmap
+     *
+     * @param bitmap   the bitmap on which the filters will be applied
+     * @param filters  the filters which will be applied on the bitmap
      * @param listener the listener on which the results will be notified
      */
     public static void getBitmapForMultipleFilters(final Bitmap bitmap,
@@ -355,8 +360,6 @@ public class CameraView {
     }
 
     /**
-     * Deprecated: Please use
-     *
      * Save current image with applied filter to Pictures. It will be stored on
      * the default Picture folder on the phone below the given folderName and
      * fileName. <br>
@@ -364,37 +367,34 @@ public class CameraView {
      * listener.
      *
      * @param folderName the folder name
-     * @param fileName the file name
-     * @param listener the listener
+     * @param fileName   the file name
+     * @param listener   the listener
      */
     @Deprecated
     public void saveToPictures(final String folderName, final String fileName,
-            final OnPictureSavedListener listener) {
+                               final OnPictureSavedListener listener) {
         saveToPictures(mCurrentBitmap, folderName, fileName, listener);
     }
 
     /**
-     * Deprecated: Please use
-     *
      * Apply and save the given bitmap with applied filter to Pictures. It will
      * be stored on the default Picture folder on the phone below the given
      * folerName and fileName. <br>
      * This method is async and will notify when the image was saved through the
      * listener.
      *
-     * @param bitmap the bitmap
+     * @param bitmap     the bitmap
      * @param folderName the folder name
-     * @param fileName the file name
-     * @param listener the listener
+     * @param fileName   the file name
+     * @param listener   the listener
      */
     @Deprecated
     public void saveToPictures(final Bitmap bitmap, final String folderName, final String fileName,
-            final OnPictureSavedListener listener) {
-        new SaveTask(bitmap, folderName, fileName, listener).execute();
+                               final OnPictureSavedListener listener) {
+        new SaveImageTask(bitmap, folderName, fileName, this,listener).execute();
     }
 
     /**
-     * Runs the given Runnable on the OpenGL thread.
      * 在OpenGL线程上运行给定的Runnable
      *
      * @param runnable The runnable to be run on the OpenGL thread.
@@ -406,9 +406,10 @@ public class CameraView {
 
     /**
      * 获取输出的宽度
+     *
      * @return
      */
-    private int getOutputWidth() {
+    public int getOutputWidth() {
         if (mRenderer != null && mRenderer.getFrameWidth() != 0) {
             return mRenderer.getFrameWidth();
         } else if (mCurrentBitmap != null) {
@@ -423,9 +424,10 @@ public class CameraView {
 
     /**
      * 获取输出的高度
+     *
      * @return
      */
-    private int getOutputHeight() {
+    public int getOutputHeight() {
         if (mRenderer != null && mRenderer.getFrameHeight() != 0) {
             return mRenderer.getFrameHeight();
         } else if (mCurrentBitmap != null) {
@@ -438,298 +440,25 @@ public class CameraView {
         }
     }
 
-    /**
-     * 保存图片的异步任务
-     */
-    @Deprecated
-    private class SaveTask extends AsyncTask<Void, Void, Void> {
-
-        private final Bitmap mBitmap;
-        private final String mFolderName;
-        private final String mFileName;
-        private final OnPictureSavedListener mListener;
-        private final Handler mHandler;
-
-        public SaveTask(final Bitmap bitmap, final String folderName, final String fileName,
-                final OnPictureSavedListener listener) {
-            mBitmap = bitmap;
-            mFolderName = folderName;
-            mFileName = fileName;
-            mListener = listener;
-            mHandler = new Handler();
-        }
-
-        @Override
-        protected Void doInBackground(final Void... params) {
-            Bitmap result = getBitmapWithFilterApplied(mBitmap);
-            saveImage(mFolderName, mFileName, result);
-            return null;
-        }
-
-        private void saveImage(final String folderName, final String fileName, final Bitmap image) {
-            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            File file = new File(path, folderName + "/" + fileName);
-            try {
-                file.getParentFile().mkdirs();
-                image.compress(CompressFormat.JPEG, 80, new FileOutputStream(file));
-                MediaScannerConnection.scanFile(mContext, new String[] {file.toString()}, null, new MediaScannerConnection.OnScanCompletedListener() {
-                            @Override
-                            public void onScanCompleted(final String path, final Uri uri) {
-                                if (mListener != null) {
-                                    mHandler.post(new Runnable() {
-
-                                        @Override
-                                        public void run() {
-                                            mListener.onPictureSaved(uri,image);
-                                        }
-                                    });
-                                }
-                            }
-                        });
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     /**
      * 图片保存结束后的监听
      */
     public interface OnPictureSavedListener {
-        void onPictureSaved(Uri uri,final Bitmap image);
+        void onPictureSaved(Uri uri, final Bitmap image);
     }
 
 
-    /**
-     * Uri文件
-     */
-    private class LoadImageUriTask extends LoadImageTask {
-
-        private final Uri mUri;
-
-        public LoadImageUriTask(CameraView cameraView, Uri uri) {
-            super(cameraView);
-            mUri = uri;
-        }
-
-        @Override
-        protected Bitmap decode(BitmapFactory.Options options) {
-            try {
-                InputStream inputStream;
-                if (mUri.getScheme().startsWith("http") || mUri.getScheme().startsWith("https")) {
-                    inputStream = new URL(mUri.toString()).openStream();
-                } else {
-                    inputStream = mContext.getContentResolver().openInputStream(mUri);
-                }
-                return BitmapFactory.decodeStream(inputStream, null, options);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected int getImageOrientation() throws IOException {
-            Cursor cursor = mContext.getContentResolver().query(mUri,
-                    new String[] { MediaStore.Images.ImageColumns.ORIENTATION }, null, null, null);
-
-            if (cursor == null || cursor.getCount() != 1) {
-                return 0;
-            }
-
-            cursor.moveToFirst();
-            int orientation = cursor.getInt(0);
-            cursor.close();
-            return orientation;
-        }
+    public CameraRenderer getCameraRenderer() {
+        return mRenderer;
     }
 
-    /**
-     * File文件
-     */
-    private class LoadImageFileTask extends LoadImageTask {
-
-        private final File mImageFile;
-
-        public LoadImageFileTask(CameraView cameraView, File file) {
-            super(cameraView);
-            mImageFile = file;
-        }
-
-        @Override
-        protected Bitmap decode(BitmapFactory.Options options) {
-            return BitmapFactory.decodeFile(mImageFile.getAbsolutePath(), options);
-        }
-
-        @Override
-        protected int getImageOrientation() throws IOException {
-            ExifInterface exif = new ExifInterface(mImageFile.getAbsolutePath());
-            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_NORMAL:
-                    return 0;
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    return 90;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    return 180;
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    return 270;
-                default:
-                    return 0;
-            }
-        }
+    public ScaleType getScaleType() {
+        return mScaleType;
     }
 
-    /**
-     * 抽象类
-     */
-    private abstract class LoadImageTask extends AsyncTask<Void, Void, Bitmap> {
-
-        private final CameraView mCameraView;
-        private int mOutputWidth;
-        private int mOutputHeight;
-
-        @SuppressWarnings("deprecation")
-        public LoadImageTask(final CameraView cameraView) {
-            mCameraView = cameraView;
-        }
-
-        @Override
-        protected Bitmap doInBackground(Void... params) {
-            if (mRenderer != null && mRenderer.getFrameWidth() == 0) {
-                try {
-                    synchronized (mRenderer.mSurfaceChangedWaiter) {
-                        mRenderer.mSurfaceChangedWaiter.wait(3000);
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            mOutputWidth = getOutputWidth();
-            mOutputHeight = getOutputHeight();
-            return loadResizedImage();
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            super.onPostExecute(bitmap);
-            mCameraView.deleteImage();
-            mCameraView.setImage(bitmap);
-        }
-
-        protected abstract Bitmap decode(BitmapFactory.Options options);
-
-        private Bitmap loadResizedImage() {
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            decode(options);
-            int scale = 1;
-            while (checkSize(options.outWidth / scale > mOutputWidth, options.outHeight / scale > mOutputHeight)) {
-                scale++;
-            }
-
-            scale--;
-            if (scale < 1) {
-                scale = 1;
-            }
-            options = new BitmapFactory.Options();
-            options.inSampleSize = scale;
-            options.inPreferredConfig = Bitmap.Config.RGB_565;
-            options.inPurgeable = true;
-            options.inTempStorage = new byte[32 * 1024];
-            Bitmap bitmap = decode(options);
-            if (bitmap == null) {
-                return null;
-            }
-            bitmap = rotateImage(bitmap);
-            bitmap = scaleBitmap(bitmap);
-            return bitmap;
-        }
-
-        private Bitmap scaleBitmap(Bitmap bitmap) {
-            // resize to desired dimensions
-            int width = bitmap.getWidth();
-            int height = bitmap.getHeight();
-            int[] newSize = getScaleSize(width, height);
-            Bitmap workBitmap = Bitmap.createScaledBitmap(bitmap, newSize[0], newSize[1], true);
-            if (workBitmap != bitmap) {
-                bitmap.recycle();
-                bitmap = workBitmap;
-                System.gc();
-            }
-
-            if (mScaleType == ScaleType.CENTER_CROP) {
-                // Crop it
-                int diffWidth = newSize[0] - mOutputWidth;
-                int diffHeight = newSize[1] - mOutputHeight;
-                workBitmap = Bitmap.createBitmap(bitmap, diffWidth / 2, diffHeight / 2,
-                        newSize[0] - diffWidth, newSize[1] - diffHeight);
-                if (workBitmap != bitmap) {
-                    bitmap.recycle();
-                    bitmap = workBitmap;
-                }
-            }
-
-            return bitmap;
-        }
-
-        /**
-         * Retrieve the scaling size for the image dependent on the ScaleType.<br>
-         *     根据ScaleType检索图像的缩放大小
-         * <br>
-         * If CROP: sides are same size or bigger than output's sides<br>
-         * Else   : sides are same size or smaller than output's sides
-         */
-        private int[] getScaleSize(int width, int height) {
-            float newWidth;
-            float newHeight;
-
-            float withRatio = (float) width / mOutputWidth;
-            float heightRatio = (float) height / mOutputHeight;
-
-            boolean adjustWidth = mScaleType == ScaleType.CENTER_CROP ? withRatio > heightRatio : withRatio < heightRatio;
-
-            if (adjustWidth) {
-                newHeight = mOutputHeight;
-                newWidth = (newHeight / height) * width;
-            } else {
-                newWidth = mOutputWidth;
-                newHeight = (newWidth / width) * height;
-            }
-            return new int[]{Math.round(newWidth), Math.round(newHeight)};
-        }
-
-        /**/
-        private boolean checkSize(boolean widthBigger, boolean heightBigger) {
-            if (mScaleType == ScaleType.CENTER_CROP) {
-                return widthBigger && heightBigger;
-            } else {
-                return widthBigger || heightBigger;
-            }
-        }
-
-        /**/
-        private Bitmap rotateImage(final Bitmap bitmap) {
-            if (bitmap == null) {
-                return null;
-            }
-            Bitmap rotatedBitmap = bitmap;
-            try {
-                int orientation = getImageOrientation();
-                if (orientation != 0) {
-                    Matrix matrix = new Matrix();
-                    matrix.postRotate(orientation);
-                    rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
-                            bitmap.getHeight(), matrix, true);
-                    bitmap.recycle();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return rotatedBitmap;
-        }
-
-        protected abstract int getImageOrientation() throws IOException;
+    public Context getContext() {
+        return mContext;
     }
 
     public interface ResponseListener<T> {

@@ -3,7 +3,7 @@ package com.dingmouren.camerafilter.camera;
 import android.app.Activity;
 import android.hardware.Camera;
 
-import com.dingmouren.camerafilter.utils.CameraView;
+import com.dingmouren.camerafilter.CameraOperator;
 
 /**
  * Created by 钉某人
@@ -13,33 +13,46 @@ import com.dingmouren.camerafilter.utils.CameraView;
 
 public class CameraV1 {
     private int mCurrentCameraId = 0;
-    public Camera mCamera;
+    private Camera mCamera;
     private Activity mActivity;
-    private CameraHelper mCameraHelper;
-    private CameraView mCameraView;
+    private CameraV1Helper mCameraV1Helper;
+    private CameraOperator mCameraOperator;
 
-    public CameraV1(Activity mActivity, CameraHelper mCameraHelper, CameraView mCameraView) {
+    public CameraV1(Activity mActivity, CameraV1Helper mCameraV1Helper, CameraOperator mCameraOperator) {
         this.mActivity = mActivity;
-        this.mCameraHelper = mCameraHelper;
-        this.mCameraView = mCameraView;
+        this.mCameraV1Helper = mCameraV1Helper;
+        this.mCameraOperator = mCameraOperator;
     }
 
+    /**
+     * 可见的情况下初始化摄像头
+     */
     public void onResume() {
-        setUpCamera(mCurrentCameraId);
+        initCamera(mCurrentCameraId);
     }
 
+    /**
+     * 不可见的情况下，释放摄像头资源
+     */
     public void onPause() {
         releaseCamera();
     }
 
+    /**
+     * 切换摄像头
+     */
     public void switchCamera() {
         releaseCamera();
-        mCurrentCameraId = (mCurrentCameraId + 1) % mCameraHelper.getNumberOfCameras();
-        setUpCamera(mCurrentCameraId);
+        mCurrentCameraId = (mCurrentCameraId + 1) % mCameraV1Helper.getNumberOfCameras();
+        initCamera(mCurrentCameraId);
     }
 
-    private void setUpCamera(final int id) {
-        mCamera = getCameraInstance(id);
+    /**
+     * 初始化摄像头
+     * @param id
+     */
+    private void initCamera(final int id) {
+        mCamera = getCamera(id);
         Camera.Parameters parameters = mCamera.getParameters();
         // TODO adjust by getting supportedPreviewSizes and then choosing
         // the best one for screen size (best fill screen)
@@ -48,26 +61,41 @@ public class CameraV1 {
         }
         mCamera.setParameters(parameters);
 
-        int orientation = mCameraHelper.getCameraDisplayOrientation(mActivity, mCurrentCameraId);
-        CameraHelper.CameraInfo2 cameraInfo = new CameraHelper.CameraInfo2();
-        mCameraHelper.getCameraInfo(mCurrentCameraId, cameraInfo);
+        int orientation = mCameraV1Helper.getCameraDisplayOrientation(mActivity, mCurrentCameraId);
+        CameraV1Helper.CameraInfo2 cameraInfo = new CameraV1Helper.CameraInfo2();
+        mCameraV1Helper.getCameraInfo(mCurrentCameraId, cameraInfo);
         boolean flipHorizontal = (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT);
-        mCameraView.setUpCamera(mCamera, orientation, flipHorizontal, false);
+        mCameraOperator.setUpCamera(mCamera, orientation, flipHorizontal, false);
     }
 
     /**
-     * A safe way to get an instance of the Camera object.
+     * 获取指定摄像头
      */
-    private Camera getCameraInstance(final int id) {
+    private Camera getCamera(final int id) {
         Camera camera = null;
         try {
-            camera = mCameraHelper.openCamera(id);
+            camera = mCameraV1Helper.openCamera(id);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return camera;
     }
 
+    /**
+     * 获取当前摄像头
+     * @return
+     */
+    public Camera getCamera(){
+        if (mCamera != null){
+            return mCamera;
+        }else {
+            return null;
+        }
+    }
+
+    /**
+     * 释放摄像头资源
+     */
     private void releaseCamera() {
         mCamera.setPreviewCallback(null);
         mCamera.release();
