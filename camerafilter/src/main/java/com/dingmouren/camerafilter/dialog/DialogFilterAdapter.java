@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.dingmouren.camerafilter.ConstantFilters;
 import com.dingmouren.camerafilter.R;
@@ -24,6 +25,7 @@ import org.wysaid.view.ImageGLSurfaceView;
 
 public class DialogFilterAdapter extends RecyclerView.Adapter<DialogFilterAdapter.ViewHolder> {
 
+    private OnItemClickListener mOnItemClickListener;
 
     public DialogFilterAdapter(Context context){
     }
@@ -38,7 +40,13 @@ public class DialogFilterAdapter extends RecyclerView.Adapter<DialogFilterAdapte
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
         holder.img.setImageResource(ConstantFilters.IMG_FILTERS[position]);
-
+        holder.img.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (null != mOnItemClickListener) mOnItemClickListener.onItemClickListener(position);
+            }
+        });
+        holder.tvIndex.setText(position+"");
     }
 
     @Override
@@ -48,9 +56,19 @@ public class DialogFilterAdapter extends RecyclerView.Adapter<DialogFilterAdapte
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         ImageView img;
+        TextView tvIndex;
         public ViewHolder(View itemView) {
             super(itemView);
             img = itemView.findViewById(R.id.img);
+            tvIndex = itemView.findViewById(R.id.tv_index);
         }
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener){
+        this.mOnItemClickListener = listener;
+    }
+
+    public interface OnItemClickListener{
+        void onItemClickListener(int position);
     }
 }

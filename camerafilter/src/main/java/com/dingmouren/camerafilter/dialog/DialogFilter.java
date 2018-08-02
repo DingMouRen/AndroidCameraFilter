@@ -26,6 +26,7 @@ public class DialogFilter extends Dialog {
     private RecyclerView mRecycler;
     private LinearLayoutManager mLayoutManager;
     private DialogFilterAdapter mAdapter;
+    private OnFilterChangedListener mOnFilterChangedListener;
 
     public DialogFilter(@NonNull Context context) {
         super(context, R.style.BottomDialog);
@@ -49,5 +50,24 @@ public class DialogFilter extends Dialog {
         mAdapter = new DialogFilterAdapter(getContext());
         mRecycler.setLayoutManager(mLayoutManager);
         mRecycler.setAdapter(mAdapter);
+
+        initListener();
+    }
+
+    private void initListener() {
+        mAdapter.setOnItemClickListener(new DialogFilterAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClickListener(int position) {
+                if (null != mOnFilterChangedListener) mOnFilterChangedListener.onFilterChangedListener(position);
+            }
+        });
+    }
+
+    public void setOnFilterChangedListener(OnFilterChangedListener listener){
+        this.mOnFilterChangedListener = listener;
+    }
+
+    public interface OnFilterChangedListener{
+        void onFilterChangedListener(int position);
     }
 }

@@ -56,17 +56,32 @@ public class FilterImageActivity extends AppCompatActivity {
                 mGLSurfaceView.setDisplayMode(ImageGLSurfaceView.DisplayMode.DISPLAY_ASPECT_FIT);
             }
         });
+
         mGLSurfaceView.post(new Runnable() {
             @Override
             public void run() {
-                mGLSurfaceView.setFilterWithConfig(ConstantFilters.FILTERS[0]);
+                mGLSurfaceView.setFilterWithConfig(ConstantFilters.FILTERS[1]);
             }
         });
+
         mImgFilter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mDialogFilter.show();
             }
         });
+
+        mDialogFilter.setOnFilterChangedListener(new DialogFilter.OnFilterChangedListener() {
+            @Override
+            public void onFilterChangedListener(final int position) {
+                mGLSurfaceView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mGLSurfaceView.setFilterWithConfig(ConstantFilters.FILTERS[position]);
+                    }
+                });
+            }
+        });
+
     }
 }

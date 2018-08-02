@@ -225,6 +225,5 @@ public class ConstantFilters {
             R.drawable.filter_102,
             R.drawable.filter_103,
             R.drawable.filter_104,
-            R.drawable.filter_105,
     };
 }
