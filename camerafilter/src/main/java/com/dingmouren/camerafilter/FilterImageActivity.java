@@ -1,24 +1,21 @@
 package com.dingmouren.camerafilter;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 
+import com.dingmouren.camerafilter.callback.LoadAssetsImageCallback;
 import com.dingmouren.camerafilter.dialog.DialogFilter;
 import com.dingmouren.camerafilter.util.ConvertBitmapUtils;
 
-import org.wysaid.myUtils.ImageUtil;
 import org.wysaid.nativePort.CGENativeLibrary;
 import org.wysaid.view.ImageGLSurfaceView;
 

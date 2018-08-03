@@ -1,4 +1,4 @@
-package com.dingmouren.camerafilter;
+package com.dingmouren.camerafilter.callback;
 
 import android.content.Context;
 import android.content.res.AssetManager;
