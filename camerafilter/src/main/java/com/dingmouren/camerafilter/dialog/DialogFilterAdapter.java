@@ -46,7 +46,6 @@ public class DialogFilterAdapter extends RecyclerView.Adapter<DialogFilterAdapte
                 if (null != mOnItemClickListener) mOnItemClickListener.onItemClickListener(position);
             }
         });
-        holder.tvIndex.setText(position+"");
     }
 
     @Override
@@ -56,11 +55,9 @@ public class DialogFilterAdapter extends RecyclerView.Adapter<DialogFilterAdapte
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         ImageView img;
-        TextView tvIndex;
         public ViewHolder(View itemView) {
             super(itemView);
             img = itemView.findViewById(R.id.img);
-            tvIndex = itemView.findViewById(R.id.tv_index);
         }
     }
 

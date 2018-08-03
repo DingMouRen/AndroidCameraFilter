@@ -13,13 +13,4 @@
         app:civ_border_width="2dp"
         app:civ_border_color="#ffffff"
         />
-    <TextView
-        android:id="@+id/tv_index"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/img"
-        android:textSize="20sp"
-        android:textColor="#ffffff"
-        />
 </RelativeLayout>

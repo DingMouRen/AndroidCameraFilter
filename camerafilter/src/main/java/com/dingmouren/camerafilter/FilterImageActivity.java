@@ -1,15 +1,18 @@
 package com.dingmouren.camerafilter;
 
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import com.dingmouren.camerafilter.dialog.DialogFilter;
 
+import org.wysaid.nativePort.CGENativeLibrary;
 import org.wysaid.view.ImageGLSurfaceView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -33,7 +36,7 @@ public class FilterImageActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_filter_image);
-
+        CGENativeLibrary.setLoadImageCallback(new LoadAssetsImageCallback(this), null);
         mBitmap = BitmapFactory.decodeResource(getResources(),R.drawable.img_girl);
 
         initView();
@@ -60,7 +63,7 @@ public class FilterImageActivity extends AppCompatActivity {
         mGLSurfaceView.post(new Runnable() {
             @Override
             public void run() {
-                mGLSurfaceView.setFilterWithConfig(ConstantFilters.FILTERS[1]);
+                mGLSurfaceView.setFilterWithConfig(ConstantFilters.FILTERS[0]);
             }
         });
 
@@ -77,11 +80,26 @@ public class FilterImageActivity extends AppCompatActivity {
                 mGLSurfaceView.post(new Runnable() {
                     @Override
                     public void run() {
+                        Log.e(TAG,ConstantFilters.FILTERS[position]);
                         mGLSurfaceView.setFilterWithConfig(ConstantFilters.FILTERS[position]);
                     }
                 });
             }
         });
+
+        mDialogFilter.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                mImgFilter.animate().alpha(0).setDuration(300).start();
+            }
+        });
+        mDialogFilter.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                mImgFilter.animate().alpha(1).setDuration(300).start();
+            }
+        });
+
 
     }
 }

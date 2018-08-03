@@ -59,6 +59,7 @@ public class DialogFilter extends Dialog {
             @Override
             public void onItemClickListener(int position) {
                 if (null != mOnFilterChangedListener) mOnFilterChangedListener.onFilterChangedListener(position);
+                dismiss();
             }
         });
     }
