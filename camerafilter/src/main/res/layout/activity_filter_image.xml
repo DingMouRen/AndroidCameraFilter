@@ -21,4 +21,21 @@
         android:elevation="5dp"
         app:civ_fill_color="#ffffff"
         />
+    <ImageView
+        android:id="@+id/img_cancel"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/img_cancel"
+        android:layout_marginTop="50dp"
+        android:layout_marginLeft="16dp"
+        />
+    <ImageView
+        android:id="@+id/img_confirm"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/img_confirm"
+        android:layout_marginTop="50dp"
+        android:layout_marginRight="16dp"
+        android:layout_alignParentRight="true"
+        />
 </RelativeLayout>
