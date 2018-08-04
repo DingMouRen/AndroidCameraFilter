@@ -44,6 +44,7 @@ public class FilterCameraActivity extends AppCompatActivity {
     private ImageView mImgFilter;
     private VideoControlView mVideoControlView;
     private ImageView mImgSwitch;
+    private ImageView mImgBack;
 
     private DialogFilter mDialogFilter;
     private  boolean mIsFlashOpened = false;
@@ -85,6 +86,7 @@ public class FilterCameraActivity extends AppCompatActivity {
         mImgFilter = findViewById(R.id.img_filter);
         mVideoControlView = findViewById(R.id.video_control_view);
         mImgSwitch = findViewById(R.id.img_switch);
+        mImgBack = findViewById(R.id.img_back);
 
         mDialogFilter = new DialogFilter(this);
 
@@ -105,6 +107,13 @@ public class FilterCameraActivity extends AppCompatActivity {
     }
 
     private void initListener() {
+        /*返回*/
+        mImgBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onDestroy();
+            }
+        });
         /*切换前后摄像头*/
         mImgSwitch.setOnClickListener(new View.OnClickListener() {
             @Override

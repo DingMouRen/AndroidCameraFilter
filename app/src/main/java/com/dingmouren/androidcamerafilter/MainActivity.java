@@ -45,15 +45,17 @@ public class MainActivity extends AppCompatActivity {
         mImg_2 = findViewById(R.id.img_2);
         mBtnImg = findViewById(R.id.btn_img);
 
-        mBitmap = BitmapFactory.decodeResource(getResources(),R.drawable.img_girl);
-        mImg_1.setImageResource(R.drawable.img_girl);
+        mBitmap = BitmapFactory.decodeResource(getResources(),R.drawable.img_test);
+        mImg_1.setImageResource(R.drawable.img_test);
+
     }
 
     private void initListener(){
         mBtnImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FilterImageActivity.disposeBitmap(MainActivity.this, ConvertBitmapUtils.bitmapToByteArray(mBitmap));
+                Bitmap bitmap = BitmapCompressUtils.compressScale(MainActivity.this,R.drawable.img_test,0.3f,0.3f);
+                FilterImageActivity.disposeBitmap(MainActivity.this, ConvertBitmapUtils.bitmapToByteArray(bitmap));
             }
         });
     }

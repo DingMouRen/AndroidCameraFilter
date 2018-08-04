@@ -53,4 +53,12 @@
         android:layout_marginRight="16dp"
         android:layout_marginTop="50dp"
         />
+    <ImageView
+        android:id="@+id/img_back"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:src="@drawable/img_back"
+        android:layout_marginTop="50dp"
+        android:layout_marginLeft="16dp"
+        />
 </RelativeLayout>
