@@ -40,5 +40,12 @@
             android:text="图片滤镜"
             android:background="@null"
             />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="相机滤镜"
+            android:background="@null"
+            android:onClick="cameraFilter"
+            />
     </LinearLayout>
 </LinearLayout>

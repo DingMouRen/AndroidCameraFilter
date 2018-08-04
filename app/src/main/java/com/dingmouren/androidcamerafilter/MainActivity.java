@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.dingmouren.camerafilter.FilterCameraActivity;
 import com.dingmouren.camerafilter.FilterImageActivity;
 import com.dingmouren.camerafilter.util.ConvertBitmapUtils;
 
@@ -55,6 +56,10 @@ public class MainActivity extends AppCompatActivity {
                 FilterImageActivity.disposeBitmap(MainActivity.this, ConvertBitmapUtils.bitmapToByteArray(mBitmap));
             }
         });
+    }
+
+    public void cameraFilter(View view){
+        startActivity(new Intent(MainActivity.this, FilterCameraActivity.class));
     }
 
     @Override

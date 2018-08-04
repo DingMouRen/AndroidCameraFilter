@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="VideoControlView">
+        <!--录制最小时间-->
+        <attr name="minTime" format="integer" />
+        <!--录制最大时间-->
+        <attr name="maxTime" format="integer" />
+        <!--内圆颜色-->
+        <attr name="innerCircleColor" format="color" />
+        <!--外圆颜色-->
+        <attr name="annulusColor" format="color" />
+        <!--进度条颜色-->
+        <attr name="progressColor" format="color" />
+        <!--内圆半径-->
+        <attr name="innerCircleRadius" format="dimension" />
+        <!--外圆半径-->
+        <attr name="excircleRadius" format="dimension" />
+        <!--外圆放大倍数-->
+        <attr name="excicleMagnification" format="float" />
+        <!--内圆缩小倍数-->
+        <attr name="innerCircleShrinks" format="float" />
+    </declare-styleable>
+</resources>

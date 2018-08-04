@@ -1,6 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-</android.support.constraint.ConstraintLayout>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <org.wysaid.view.CameraRecordGLSurfaceView
+        android:id="@+id/camera_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+    <!--底部的按钮-->
+    <RelativeLayout
+        android:id="@+id/rela_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"
+        >
+        <ImageView
+            android:id="@+id/img_flash"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/img_flash"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/video_control_view"
+            />
+        <com.dingmouren.camerafilter.view.VideoControlView
+            android:id="@+id/video_control_view"
+            android:layout_width="250px"
+            android:layout_centerInParent="true"
+            android:layout_height="250px"
+            app:excircleRadius="100px"
+            app:innerCircleRadius="70px"
+            app:minTime="2"
+            app:maxTime="20"
+            />
+        <ImageView
+            android:id="@+id/img_filter"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/img_filter"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/video_control_view"
+            />
+    </RelativeLayout>
+    <ImageView
+        android:id="@+id/img_switch"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:src="@drawable/img_switch_camera"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="50dp"
+        />
+</RelativeLayout>

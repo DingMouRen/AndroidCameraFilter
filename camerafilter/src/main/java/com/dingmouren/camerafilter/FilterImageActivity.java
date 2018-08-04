@@ -35,7 +35,7 @@ public class FilterImageActivity extends AppCompatActivity {
     public static final int REQUEST_CODE_FILTER_IMG = 101;
 
     private ImageGLSurfaceView mGLSurfaceView;
-    private CircleImageView mImgFilter;
+    private ImageView mImgFilter;
     private ImageView mImgCancel;
     private ImageView mImgConfirm;
 
@@ -115,14 +115,14 @@ public class FilterImageActivity extends AppCompatActivity {
         mDialogFilter.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
-                mImgFilter.animate().alpha(0).setDuration(300).start();
+                mImgFilter.animate().alpha(0).setDuration(1000).start();
             }
         });
         /*过滤对话框隐藏的监听*/
         mDialogFilter.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                mImgFilter.animate().alpha(1).setDuration(300).start();
+                mImgFilter.animate().alpha(1).setDuration(1000).start();
             }
         });
         /*关闭*/
@@ -147,6 +147,18 @@ public class FilterImageActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mGLSurfaceView.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mGLSurfaceView.onPause();
     }
 
     @Override
