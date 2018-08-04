@@ -2,6 +2,8 @@ package com.dingmouren.camerafilter.listener;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.widget.Toast;
 
 import org.wysaid.view.CameraRecordGLSurfaceView;
@@ -29,6 +31,7 @@ public class EndRecordingFilterCallback implements CameraRecordGLSurfaceView.End
             @Override
             public void run() {
                 Toast.makeText(mActivity,"视频保存在:"+mVideoFilePath,Toast.LENGTH_SHORT).show();
+                mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + mVideoFilePath)));
             }
         });
 
