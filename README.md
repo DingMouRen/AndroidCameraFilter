@@ -6,3 +6,6 @@
 | 图片滤镜 | 相机滤镜 |
 | :----: | :----: |
 |![img1](https://github.com/DingMouRen/AndroidCameraFilter/raw/master/imgs/filter_img.gif) | ![img2](https://github.com/DingMouRen/AndroidCameraFilter/raw/master/imgs/filter_video.gif)|
+
+### **三。滤镜种类**
+![fiilter_0](https://github.com/DingMouRen/AndroidCameraFilter/raw/master/camerafilter/src/main/res/drawable-nodpi/filter_0.jpg)
