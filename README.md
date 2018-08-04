@@ -9,3 +9,10 @@
 
 ### **三。滤镜种类**
 ![fiilter_0](https://github.com/DingMouRen/AndroidCameraFilter/raw/master/camerafilter/src/main/res/drawable-nodpi/filter_0.jpg)
+![fiilter_0](https://github.com/DingMouRen/AndroidCameraFilter/raw/master/camerafilter/src/main/res/drawable-nodpi/filter_1.jpg)
+![fiilter_0](https://github.com/DingMouRen/AndroidCameraFilter/raw/master/camerafilter/src/main/res/drawable-nodpi/filter_2.jpg)
+![fiilter_0](https://github.com/DingMouRen/AndroidCameraFilter/raw/master/camerafilter/src/main/res/drawable-nodpi/filter_3.jpg)
+![fiilter_0](https://github.com/DingMouRen/AndroidCameraFilter/raw/master/camerafilter/src/main/res/drawable-nodpi/filter_4.jpg)
+![fiilter_0](https://github.com/DingMouRen/AndroidCameraFilter/raw/master/camerafilter/src/main/res/drawable-nodpi/filter_5.jpg)
+![fiilter_0](https://github.com/DingMouRen/AndroidCameraFilter/raw/master/camerafilter/src/main/res/drawable-nodpi/filter_6.jpg)
+![fiilter_0](https://github.com/DingMouRen/AndroidCameraFilter/raw/master/camerafilter/src/main/res/drawable-nodpi/filter_7.jpg)
